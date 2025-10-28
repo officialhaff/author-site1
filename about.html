@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="about.title">Обо мне - Terminal Portfolio</title>
+    <link rel="stylesheet" href="terminal.css">
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 3;
+        }
+        .content {
+            margin: 40px 0;
+            min-height: 300px;
+        }
+        .email-section {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid var(--accent);
+        }
+
+        /* CRT-эффекты */
+        .crt::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+            linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            z-index: 2;
+            pointer-events: none;
+            animation: flicker 0.15s infinite;
+        }
+
+        .scanline {
+            width: 100%;
+            height: 100px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: linear-gradient(
+                    0deg,
+                    rgba(0, 0, 0, 0) 0%,
+                    rgba(255, 255, 255, 0.2) 10%,
+                    rgba(0, 0, 0, 0.1) 100%
+            );
+            opacity: 0.1;
+            z-index: 1;
+            pointer-events: none;
+            animation: scanline 10s linear infinite;
+        }
+
+        .crt-vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.9);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .crt-curvature {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 5px;
+            box-shadow:
+                    0 0 0 10px rgba(0, 0, 0, 0.8),
+                    inset 0 0 20px rgba(0, 0, 0, 0.5);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        @keyframes flicker {
+            0% {
+                opacity: 0.27861;
+            }
+            5% {
+                opacity: 0.34769;
+            }
+            10% {
+                opacity: 0.23604;
+            }
+            15% {
+                opacity: 0.90626;
+            }
+            20% {
+                opacity: 0.18128;
+            }
+            25% {
+                opacity: 0.83891;
+            }
+            30% {
+                opacity: 0.65583;
+            }
+            35% {
+                opacity: 0.67807;
+            }
+            40% {
+                opacity: 0.26559;
+            }
+            45% {
+                opacity: 0.84693;
+            }
+            50% {
+                opacity: 0.96019;
+            }
+            55% {
+                opacity: 0.08594;
+            }
+            60% {
+                opacity: 0.20313;
+            }
+            65% {
+                opacity: 0.71988;
+            }
+            70% {
+                opacity: 0.53455;
+            }
+            75% {
+                opacity: 0.37288;
+            }
+            80% {
+                opacity: 0.71428;
+            }
+            85% {
+                opacity: 0.70419;
+            }
+            90% {
+                opacity: 0.7003;
+            }
+            95% {
+                opacity: 0.36108;
+            }
+            100% {
+                opacity: 0.24387;
+            }
+        }
+
+        @keyframes scanline {
+            0% {
+                transform: translateY(-100px);
+            }
+            100% {
+                transform: translateY(calc(100vh + 100px));
+            }
+        }
+    </style>
+</head>
+<body class="crt">
+<!-- Элементы CRT-эффектов -->
+<div class="scanline"></div>
+<div class="crt-vignette"></div>
+<div class="crt-curvature"></div>
+
+<div class="container">
+    <header>
+        <div class="header-top">
+            <h1 data-i18n="about.title">Обо мне</h1>
+        </div>
+        <div class="nav">
+            <a href="index.html" data-i18n="nav.home">Главная</a>
+            <a href="about.html" data-i18n="nav.about">Обо мне</a>
+            <a href="links.html" data-i18n="nav.links">Ссылки</a>
+            <a href="sounds.html" data-i18n="nav.sounds">Звуки</a>
+            <a href="music.html" data-i18n="nav.music">Музыка</a>
+            <a href="projects.html" data-i18n="nav.projects">Проекты</a>
+        </div>
+    </header>
+
+    <section class="content">
+        <h2 data-i18n="about.subtitle">Немного информации</h2>
+        <p data-i18n="about.text1">Привет! Я разработчик, увлекающийся созданием интересных проектов.</p>
+        <p data-i18n="about.text2">Мне нравится экспериментировать с различными технологиями и подходами.</p>
+        <p data-i18n="about.text3">В свободное время изучаю новые языки программирования и фреймворки.</p>
+    </section>
+
+    <section class="email-section">
+        <!-- Добавляем блок с иконками социальных сетей -->
+        <div class="social-icons">
+            <a href="https://vk.com/yourprofile" target="_blank" rel="noopener noreferrer">
+                <img src="static/social/twitch.svg" alt="Twitch" width="32" height="32">
+            </a>
+            <a href="https://t.me/yourprofile" target="_blank" rel="noopener noreferrer">
+                <img src="static/social/youtube.svg" alt="Youtube" width="32" height="32">
+            </a>
+            <a href="https://github.com/yourprofile" target="_blank" rel="noopener noreferrer">
+                <img src="static/social/github.svg" alt="GitHub" width="32" height="32">
+            </a>
+            <a href="https://instagram.com/yourprofile" target="_blank" rel="noopener noreferrer">
+                <img src="static/social/twitter.svg" alt="Twitter" width="32" height="32">
+            </a>
+        </div>
+        <p class="crt-text"><span data-i18n="email">Электронная почта:</span>
+            <a href="mailto:hopereborn@gmail.com">hopereborn@gmail.com</a>
+        </p>
+    </section>
+</div>
+
+<!-- Подключаем скрипты для перевода -->
+<script src="i18n.js"></script>
+<script src="language-switcher.js"></script>
+<script src="menu-sounds.js"></script>
+
+<script>
+    // Определение активной страницы для навигации
+    document.addEventListener('DOMContentLoaded', function() {
+        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+        const navLinks = document.querySelectorAll('.nav a');
+
+        navLinks.forEach(link => {
+            const linkHref = link.getAttribute('href');
+            if (linkHref === currentPage ||
+                (currentPage === '' && linkHref === 'index.html') ||
+                (currentPage.includes(linkHref.replace('.html', '')) && linkHref !== 'index.html')) {
+                link.classList.add('active');
+            }
+        });
+
+        // Добавляем эффект статического шума для кнопок
+        const buttons = document.querySelectorAll('.nav a, button');
+        buttons.forEach(button => {
+            button.addEventListener('mouseenter', function() {
+                this.style.animation = 'glow-flicker 0.5s infinite alternate';
+            });
+
+            button.addEventListener('mouseleave', function() {
+                this.style.animation = '';
+            });
+        });
+    });
+</script>
+</body>
+</html>

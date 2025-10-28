@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="sounds.title">Звуки - Terminal Portfolio</title>
+    <link rel="stylesheet" href="terminal.css">
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 3;
+        }
+        .content {
+            margin: 40px 0;
+            min-height: 300px;
+        }
+        .email-section {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid var(--accent);
+        }
+
+        /* CRT-эффекты */
+        .crt::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+            linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            z-index: 2;
+            pointer-events: none;
+            animation: flicker 0.15s infinite;
+        }
+
+        .scanline {
+            width: 100%;
+            height: 100px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: linear-gradient(
+                    0deg,
+                    rgba(0, 0, 0, 0) 0%,
+                    rgba(255, 255, 255, 0.2) 10%,
+                    rgba(0, 0, 0, 0.1) 100%
+            );
+            opacity: 0.1;
+            z-index: 1;
+            pointer-events: none;
+            animation: scanline 10s linear infinite;
+        }
+
+        .crt-vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.9);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .crt-curvature {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 5px;
+            box-shadow:
+                    0 0 0 10px rgba(0, 0, 0, 0.8),
+                    inset 0 0 20px rgba(0, 0, 0, 0.5);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        @keyframes flicker {
+            0% {
+                opacity: 0.27861;
+            }
+            5% {
+                opacity: 0.34769;
+            }
+            10% {
+                opacity: 0.23604;
+            }
+            15% {
+                opacity: 0.90626;
+            }
+            20% {
+                opacity: 0.18128;
+            }
+            25% {
+                opacity: 0.83891;
+            }
+            30% {
+                opacity: 0.65583;
+            }
+            35% {
+                opacity: 0.67807;
+            }
+            40% {
+                opacity: 0.26559;
+            }
+            45% {
+                opacity: 0.84693;
+            }
+            50% {
+                opacity: 0.96019;
+            }
+            55% {
+                opacity: 0.08594;
+            }
+            60% {
+                opacity: 0.20313;
+            }
+            65% {
+                opacity: 0.71988;
+            }
+            70% {
+                opacity: 0.53455;
+            }
+            75% {
+                opacity: 0.37288;
+            }
+            80% {
+                opacity: 0.71428;
+            }
+            85% {
+                opacity: 0.70419;
+            }
+            90% {
+                opacity: 0.7003;
+            }
+            95% {
+                opacity: 0.36108;
+            }
+            100% {
+                opacity: 0.24387;
+            }
+        }
+
+        @keyframes scanline {
+            0% {
+                transform: translateY(-100px);
+            }
+            100% {
+                transform: translateY(calc(100vh + 100px));
+            }
+        }
+    </style>
+</head>
+<body class="crt">
+<!-- Элементы CRT-эффектов -->
+<div class="scanline"></div>
+<div class="crt-vignette"></div>
+<div class="crt-curvature"></div>
+
+<div class="container">
+    <header>
+        <div class="header-top">
+            <h1 data-i18n="sounds.title">Звуки</h1>
+        </div>
+        <div class="nav">
+            <a href="index.html" data-i18n="nav.home">Главная</a>
+            <a href="about.html" data-i18n="nav.about">Обо мне</a>
+            <a href="links.html" data-i18n="nav.links">Ссылки</a>
+            <a href="sounds.html" data-i18n="nav.sounds">Звуки</a>
+            <a href="music.html" data-i18n="nav.music">Музыка</a>
+            <a href="projects.html" data-i18n="nav.projects">Проекты</a>
+        </div>
+    </header>
+
+    <section class="content">
+        <h2 data-i18n="sounds.subtitle">Звуковые проекты</h2>
+        <p data-i18n="sounds.text1">Здесь будут представлены мои работы со звуком.</p>
+        <p data-i18n="sounds.text2">В будущем планирую добавить примеры звуковых эффектов и дизайна.</p>
+
+        <!-- Секция тегов -->
+        <div class="tags-section">
+            <div class="tags-title">Фильтр по тегам:</div>
+            <div class="tags-container" id="soundsTags">
+                <!-- Теги будут добавляться автоматически через JavaScript -->
+            </div>
+            <div class="tags-info" id="soundsTagsInfo">Показаны все звуки. Выберите теги для фильтрации.</div>
+        </div>
+
+        <!-- Кастомный аудио-плеер 1 -->
+        <div class="audio-player" id="player1" data-tags="город, шум, атмосфера">
+            <div class="track-info">
+                <span class="track-title" data-i18n="audio.track4">Городской шум</span>
+                <span class="track-duration">1:15</span>
+            </div>
+            <div class="track-tags">
+                <span class="track-tag">город</span>
+                <span class="track-tag">шум</span>
+                <span class="track-tag">атмосфера</span>
+            </div>
+            <div class="audio-controls">
+                <div class="audio-controls-main">
+                    <button class="play-btn">▶</button>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="audio-controls-side">
+                    <a href="audio/sounds/city-noise.mp3" class="download-btn" download="city-noise.mp3">↓</a>
+                    <div class="volume-control">
+                        <button class="volume-btn">🔊</button>
+                        <div class="volume-popup">
+                            <div class="volume-slider-vertical">
+                                <div class="volume-level-vertical"></div>
+                            </div>
+                            <div class="volume-value">80%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="time-display">
+                <span class="current-time">0:00</span>
+                <span class="total-time">1:15</span>
+            </div>
+            <audio class="audio-element" preload="metadata">
+                <source src="audio/sounds/city-noise.mp3" type="audio/mpeg">
+                <source src="audio/sounds/city-noise.wav" type="audio/wav">
+                Ваш браузер не поддерживает аудио элемент.
+            </audio>
+        </div>
+
+        <!-- Кастомный аудио-плеер 2 -->
+        <div class="audio-player" id="player2" data-tags="природа, релакс, окружение">
+            <div class="track-info">
+                <span class="track-title" data-i18n="audio.track5">Природные звуки</span>
+                <span class="track-duration">2:45</span>
+            </div>
+            <div class="track-tags">
+                <span class="track-tag">природа</span>
+                <span class="track-tag">релакс</span>
+                <span class="track-tag">окружение</span>
+            </div>
+            <div class="audio-controls">
+                <div class="audio-controls-main">
+                    <button class="play-btn">▶</button>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="audio-controls-side">
+                    <a href="audio/sounds/nature-sounds.mp3" class="download-btn" download="nature-sounds.mp3">↓</a>
+                    <div class="volume-control">
+                        <button class="volume-btn">🔊</button>
+                        <div class="volume-popup">
+                            <div class="volume-slider-vertical">
+                                <div class="volume-level-vertical"></div>
+                            </div>
+                            <div class="volume-value">80%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="time-display">
+                <span class="current-time">0:00</span>
+                <span class="total-time">2:45</span>
+            </div>
+            <audio class="audio-element" preload="metadata">
+                <source src="audio/sounds/nature-sounds.mp3" type="audio/mpeg">
+                <source src="audio/sounds/nature-sounds.wav" type="audio/wav">
+                Ваш браузер не поддерживает аудио элемент.
+            </audio>
+        </div>
+
+        <!-- Кастомный аудио-плеер 3 -->
+        <div class="audio-player" id="player3" data-tags="экспериментальный, синтез, текстура">
+            <div class="track-info">
+                <span class="track-title" data-i18n="audio.track6">Экспериментальный звук</span>
+                <span class="track-duration">0:45</span>
+            </div>
+            <div class="track-tags">
+                <span class="track-tag">экспериментальный</span>
+                <span class="track-tag">синтез</span>
+                <span class="track-tag">текстура</span>
+            </div>
+            <div class="audio-controls">
+                <div class="audio-controls-main">
+                    <button class="play-btn">▶</button>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="audio-controls-side">
+                    <a href="audio/sounds/experimental-sound.mp3" class="download-btn" download="experimental-sound.mp3">↓</a>
+                    <div class="volume-control">
+                        <button class="volume-btn">🔊</button>
+                        <div class="volume-popup">
+                            <div class="volume-slider-vertical">
+                                <div class="volume-level-vertical"></div>
+                            </div>
+                            <div class="volume-value">80%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="time-display">
+                <span class="current-time">0:00</span>
+                <span class="total-time">0:45</span>
+            </div>
+            <audio class="audio-element" preload="metadata">
+                <source src="audio/sounds/experimental-sound.mp3" type="audio/mpeg">
+                <source src="audio/sounds/experimental-sound.wav" type="audio/wav">
+                Ваш браузер не поддерживает аудио элемент.
+            </audio>
+        </div>
+
+        <div class="audio-upload">
+            <h3 data-i18n="upload.sounds.title">Добавить звуковой файл</h3>
+            <p data-i18n="upload.step1">Чтобы добавить новый звуковой файл:</p>
+            <ol>
+                <li><span data-i18n="upload.step1">Поместите файл в формате MP3 или WAV в папку</span> <code>audio/sounds/</code></li>
+                <li data-i18n="upload.step2">Добавьте следующий код на эту страницу:</li>
+            </ol>
+            <pre><code>&lt;div class="audio-player" data-tags="тег1, тег2, тег3"&gt;
+  &lt;div class="track-info"&gt;
+    &lt;span class="track-title"&gt;Название звука&lt;/span&gt;
+    &lt;span class="track-duration"&gt;Длительность&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="track-tags"&gt;
+    &lt;span class="track-tag"&gt;тег1&lt;/span&gt;
+    &lt;span class="track-tag"&gt;тег2&lt;/span&gt;
+    &lt;span class="track-tag"&gt;тег3&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="audio-controls"&gt;
+    &lt;div class="audio-controls-main"&gt;
+      &lt;button class="play-btn"&gt;▶&lt;/button&gt;
+      &lt;div class="progress-container"&gt;
+        &lt;div class="progress-bar"&gt;
+          &lt;div class="progress"&gt;&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="audio-controls-side"&gt;
+      &lt;a href="audio/sounds/имя-файла.mp3" class="download-btn" download="имя-файла.mp3"&gt;↓&lt;/a&gt;
+      &lt;div class="volume-control"&gt;
+        &lt;button class="volume-btn"&gt;🔊&lt;/button&gt;
+        &lt;div class="volume-popup"&gt;
+          &lt;div class="volume-slider-vertical"&gt;
+            &lt;div class="volume-level-vertical"&gt;&lt;/div&gt;
+          &lt;/div&gt;
+          &lt;div class="volume-value"&gt;80%&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="time-display"&gt;
+    &lt;span class="current-time"&gt;0:00&lt;/span&gt;
+    &lt;span class="total-time"&gt;Длительность&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;audio class="audio-element" preload="metadata"&gt;
+    &lt;source src="audio/sounds/имя-файла.mp3" type="audio/mpeg"&gt;
+    &lt;source src="audio/sounds/имя-файла.wav" type="audio/wav"&gt;
+    Ваш браузер не поддерживает аудио элемент.
+  &lt;/audio&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+    </section>
+
+    <section class="email-section">
+        <!-- Добавляем блок с иконками социальных сетей -->
+        <div class="social-icons">
+            <a href="https://vk.com/yourprofile" target="_blank" rel="noopener noreferrer">
+                <img src="static/social/twitch.svg" alt="Twitch" width="32" height="32">
+            </a>
+            <a href="https://t.me/yourprofile" target="_blank" rel="noopener noreferrer">
+                <img src="static/social/youtube.svg" alt="Youtube" width="32" height="32">
+            </a>
+            <a href="https://github.com/yourprofile" target="_blank" rel="noopener noreferrer">
+                <img src="static/social/github.svg" alt="GitHub" width="32" height="32">
+            </a>
+            <a href="https://instagram.com/yourprofile" target="_blank" rel="noopener noreferrer">
+                <img src="static/social/twitter.svg" alt="Twitter" width="32" height="32">
+            </a>
+        </div>
+        <p class="crt-text"><span data-i18n="email">Электронная почта:</span>
+            <a href="mailto:hopereborn@gmail.com">hopereborn@gmail.com</a>
+        </p>
+    </section>
+</div>
+
+<script>
+    // Функция для форматирования времени в MM:SS
+    function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+    // Система тегов для фильтрации звуков
+    function initTagSystem() {
+        const tagsContainer = document.getElementById('soundsTags');
+        const tagsInfo = document.getElementById('soundsTagsInfo');
+        const audioPlayers = document.querySelectorAll('.audio-player');
+        let allTags = [];
+        let activeTags = [];
+
+        // Собираем все теги из всех звуков
+        audioPlayers.forEach(player => {
+            const tags = player.getAttribute('data-tags').split(',').map(tag => tag.trim());
+            allTags = [...allTags, ...tags];
+        });
+
+        // Удаляем дубликаты
+        allTags = [...new Set(allTags)];
+
+        // Создаем кнопки тегов
+        allTags.forEach(tag => {
+            const tagElement = document.createElement('span');
+            tagElement.className = 'tag';
+            tagElement.textContent = tag;
+            tagElement.setAttribute('data-tag', tag);
+            tagsContainer.appendChild(tagElement);
+
+            // Обработчик клика по тегу
+            tagElement.addEventListener('click', () => {
+                tagElement.classList.toggle('active');
+
+                // Обновляем активные теги
+                if (tagElement.classList.contains('active')) {
+                    activeTags.push(tag);
+                } else {
+                    activeTags = activeTags.filter(t => t !== tag);
+                }
+
+                // Фильтруем звуки
+                filterTracks();
+            });
+        });
+
+        // Функция фильтрации звуков
+        function filterTracks() {
+            let visibleCount = 0;
+
+            audioPlayers.forEach(player => {
+                const playerTags = player.getAttribute('data-tags').split(',').map(tag => tag.trim());
+
+                // Если нет активных тегов, показываем все звуки
+                if (activeTags.length === 0) {
+                    player.classList.remove('hidden');
+                    visibleCount++;
+                    return;
+                }
+
+                // Проверяем, есть ли у звука хотя бы один из активных тегов
+                const hasMatchingTag = activeTags.some(tag => playerTags.includes(tag));
+
+                if (hasMatchingTag) {
+                    player.classList.remove('hidden');
+                    visibleCount++;
+                } else {
+                    player.classList.add('hidden');
+                }
+            });
+
+            // Обновляем информацию о фильтрации
+            if (activeTags.length === 0) {
+                tagsInfo.textContent = 'Показаны все звуки. Выберите теги для фильтрации.';
+            } else {
+                tagsInfo.textContent = `Показано ${visibleCount} звуков с тегами: ${activeTags.join(', ')}`;
+            }
+        }
+
+        // Добавляем кнопку сброса фильтров
+        const resetButton = document.createElement('span');
+        resetButton.className = 'tag';
+        resetButton.textContent = 'Сбросить фильтры';
+        resetButton.style.background = 'transparent';
+        resetButton.style.border = '1px dashed var(--accent)';
+
+        resetButton.addEventListener('click', () => {
+            // Сбрасываем все активные теги
+            document.querySelectorAll('.tag').forEach(tag => {
+                tag.classList.remove('active');
+            });
+            activeTags = [];
+            filterTracks();
+        });
+
+        tagsContainer.appendChild(resetButton);
+    }
+
+    // Инициализация системы тегов после загрузки DOM
+    document.addEventListener('DOMContentLoaded', () => {
+        initTagSystem();
+    });
+
+    // Инициализация всех аудио-плееров на странице
+    document.querySelectorAll('.audio-player').forEach(player => {
+        const audio = player.querySelector('.audio-element');
+        const playBtn = player.querySelector('.play-btn');
+        const progressBar = player.querySelector('.progress');
+        const progressContainer = player.querySelector('.progress-container');
+        const currentTimeEl = player.querySelector('.current-time');
+        const totalTimeEl = player.querySelector('.total-time');
+        const volumeBtn = player.querySelector('.volume-btn');
+        const volumePopup = player.querySelector('.volume-popup');
+        const volumeSlider = player.querySelector('.volume-slider-vertical');
+        const volumeLevel = player.querySelector('.volume-level-vertical');
+        const volumeValue = player.querySelector('.volume-value');
+        const downloadBtn = player.querySelector('.download-btn');
+
+        // Установка начальной громкости
+        audio.volume = 0.8;
+
+        // Установка общей длительности
+        audio.addEventListener('loadedmetadata', () => {
+            totalTimeEl.textContent = formatTime(audio.duration);
+        });
+
+        // Воспроизведение/пауза
+        playBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                playBtn.textContent = '❚❚';
+            } else {
+                audio.pause();
+                playBtn.textContent = '▶';
+            }
+        });
+
+        // Обновление прогресса
+        audio.addEventListener('timeupdate', () => {
+            const progressPercent = (audio.currentTime / audio.duration) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+            currentTimeEl.textContent = formatTime(audio.currentTime);
+        });
+
+        // Перемотка по клику на прогресс-бар
+        progressContainer.addEventListener('click', (e) => {
+            const rect = progressContainer.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            audio.currentTime = percent * audio.duration;
+        });
+
+        // Управление громкостью - открытие/закрытие попапа
+        volumeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            volumePopup.classList.toggle('show');
+        });
+
+        // Закрытие попапа громкости при клике вне его
+        document.addEventListener('click', () => {
+            volumePopup.classList.remove('show');
+        });
+
+        // Предотвращение закрытия попапа при клике внутри него
+        volumePopup.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        // Изменение громкости при клике на вертикальный слайдер
+        volumeSlider.addEventListener('click', (e) => {
+            const rect = volumeSlider.getBoundingClientRect();
+            const percent = 1 - (e.clientY - rect.top) / rect.height;
+            const newVolume = Math.max(0, Math.min(1, percent));
+
+            audio.volume = newVolume;
+            volumeLevel.style.height = `${newVolume * 100}%`;
+            volumeValue.textContent = `${Math.round(newVolume * 100)}%`;
+
+            // Обновление иконки в зависимости от громкости
+            if (newVolume === 0) {
+                volumeBtn.textContent = '🔇';
+            } else if (newVolume < 0.5) {
+                volumeBtn.textContent = '🔈';
+            } else {
+                volumeBtn.textContent = '🔊';
+            }
+        });
+
+        // Сброс кнопки воспроизведения при окончании трека
+        audio.addEventListener('ended', () => {
+            playBtn.textContent = '▶';
+            progressBar.style.width = '0%';
+            currentTimeEl.textContent = '0:00';
+        });
+
+        // Обработчик для кнопки скачивания
+        downloadBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const fileUrl = this.getAttribute('href');
+            const fileName = this.getAttribute('download');
+
+            // Если файл не существует, показываем сообщение
+            if (!fileUrl || fileUrl === '#') {
+                alert('Файл для скачивания не найден. Убедитесь, что файл находится в папке audio/sounds/');
+                return;
+            }
+
+            // Создаем временную ссылку для скачивания
+            const a = document.createElement('a');
+            a.href = fileUrl;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        });
+    });
+</script>
+
+<script src="i18n.js"></script>
+<script src="language-switcher.js"></script>
+<script src="menu-sounds.js"></script>
+
+<script>
+    // Определение активной страницы для навигации
+    document.addEventListener('DOMContentLoaded', function() {
+        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+        const navLinks = document.querySelectorAll('.nav a');
+
+        navLinks.forEach(link => {
+            const linkHref = link.getAttribute('href');
+            if (linkHref === currentPage ||
+                (currentPage === '' && linkHref === 'index.html') ||
+                (currentPage.includes(linkHref.replace('.html', '')) && linkHref !== 'index.html')) {
+                link.classList.add('active');
+            }
+        });
+
+        // Добавляем эффект статического шума для кнопок
+        const buttons = document.querySelectorAll('.nav a, button');
+        buttons.forEach(button => {
+            button.addEventListener('mouseenter', function() {
+                this.style.animation = 'glow-flicker 0.5s infinite alternate';
+            });
+
+            button.addEventListener('mouseleave', function() {
+                this.style.animation = '';
+            });
+        });
+    });
+</script>
+</body>
+</html>

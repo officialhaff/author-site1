@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="projects.title">Проекты - Terminal Portfolio</title>
+    <link rel="stylesheet" href="terminal.css">
+    <style>
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 3;
+        }
+        .content {
+            margin: 40px 0;
+            min-height: 300px;
+        }
+        .email-section {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid var(--accent);
+        }
+
+        /* Лента проектов */
+        .projects-feed {
+            margin-top: 30px;
+        }
+        .project-item {
+            background: color-mix(in srgb, var(--foreground) 5%, transparent);
+            border: 1px solid color-mix(in srgb, var(--foreground) 25%, transparent);
+            border-radius: var(--radius);
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .project-item:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(238, 195, 94, 0.2);
+        }
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        .project-title {
+            font-weight: 600;
+            font-size: 1.3em;
+            color: var(--accent);
+            margin-bottom: 5px;
+        }
+        .project-meta {
+            font-size: 0.9em;
+            color: color-mix(in srgb, var(--foreground) 60%, transparent);
+            margin-bottom: 15px;
+        }
+        .project-description {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .project-details {
+            margin-bottom: 20px;
+        }
+        .project-features {
+            margin: 15px 0;
+        }
+        .project-features ul {
+            margin-left: 2ch;
+        }
+        .project-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .project-image {
+            border: 1px solid color-mix(in srgb, var(--foreground) 30%, transparent);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        .project-image:hover {
+            transform: scale(1.03);
+            border-color: var(--accent);
+        }
+        .project-image img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            display: block;
+            border: none;
+            padding: 0;
+            transition: transform 0.3s ease;
+        }
+        .project-image:hover img {
+            transform: scale(1.05);
+        }
+        .project-links {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .project-link {
+            padding: 8px 16px;
+            border: 2px solid var(--accent);
+            border-radius: var(--radius);
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+        .project-link:hover {
+            background: color-mix(in srgb, var(--accent) 15%, transparent);
+        }
+        .project-tech {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 15px 0;
+        }
+        .tech-tag {
+            padding: 3px 10px;
+            background: color-mix(in srgb, var(--foreground) 8%, transparent);
+            border: 1px solid color-mix(in srgb, var(--foreground) 25%, transparent);
+            border-radius: 12px;
+            font-size: 0.8em;
+        }
+
+        /* Статус проекта - исправленная версия */
+        .project-status {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        .status-completed {
+            background: color-mix(in srgb, #00ff00 20%, transparent);
+            border: 1px solid color-mix(in srgb, #00ff00 50%, transparent);
+            color: color-mix(in srgb, #00ff00 80%, var(--foreground));
+        }
+        .status-in-progress {
+            background: color-mix(in srgb, var(--accent) 20%, transparent);
+            border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
+            color: var(--accent);
+        }
+        .status-planning {
+            background: color-mix(in srgb, #888 20%, transparent);
+            border: 1px solid color-mix(in srgb, #888 50%, transparent);
+            color: color-mix(in srgb, #888 80%, var(--foreground));
+        }
+
+        /* Модальное окно для изображений */
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .image-modal.active {
+            display: flex;
+            opacity: 1;
+        }
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+            background: var(--background);
+            border: 2px solid var(--accent);
+            border-radius: var(--radius);
+            padding: 10px;
+            box-shadow: 0 0 30px rgba(238, 195, 94, 0.3);
+        }
+        .modal-content img {
+            max-width: 100%;
+            max-height: 80vh;
+            display: block;
+            border: none;
+            padding: 0;
+        }
+        .modal-close {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            width: 30px;
+            height: 30px;
+            background: var(--accent);
+            color: var(--background);
+            border: none;
+            border-radius: 50%;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+        }
+        .modal-close:hover {
+            background: color-mix(in srgb, var(--accent) 80%, var(--background));
+        }
+        .modal-caption {
+            text-align: center;
+            margin-top: 10px;
+            color: var(--foreground);
+            font-size: 0.9em;
+        }
+
+        /* Анимации */
+        .project-item {
+            animation: fadeInUp 0.5s ease forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* CRT-эффекты */
+        .crt::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+            linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            z-index: 2;
+            pointer-events: none;
+            animation: flicker 0.15s infinite;
+        }
+
+        .scanline {
+            width: 100%;
+            height: 100px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: linear-gradient(
+                    0deg,
+                    rgba(0, 0, 0, 0) 0%,
+                    rgba(255, 255, 255, 0.2) 10%,
+                    rgba(0, 0, 0, 0.1) 100%
+            );
+            opacity: 0.1;
+            z-index: 1;
+            pointer-events: none;
+            animation: scanline 10s linear infinite;
+        }
+
+        .crt-vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.9);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .crt-curvature {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 5px;
+            box-shadow:
+                    0 0 0 10px rgba(0, 0, 0, 0.8),
+                    inset 0 0 20px rgba(0, 0, 0, 0.5);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        @keyframes flicker {
+            0% {
+                opacity: 0.27861;
+            }
+            5% {
+                opacity: 0.34769;
+            }
+            10% {
+                opacity: 0.23604;
+            }
+            15% {
+                opacity: 0.90626;
+            }
+            20% {
+                opacity: 0.18128;
+            }
+            25% {
+                opacity: 0.83891;
+            }
+            30% {
+                opacity: 0.65583;
+            }
+            35% {
+                opacity: 0.67807;
+            }
+            40% {
+                opacity: 0.26559;
+            }
+            45% {
+                opacity: 0.84693;
+            }
+            50% {
+                opacity: 0.96019;
+            }
+            55% {
+                opacity: 0.08594;
+            }
+            60% {
+                opacity: 0.20313;
+            }
+            65% {
+                opacity: 0.71988;
+            }
+            70% {
+                opacity: 0.53455;
+            }
+            75% {
+                opacity: 0.37288;
+            }
+            80% {
+                opacity: 0.71428;
+            }
+            85% {
+                opacity: 0.70419;
+            }
+            90% {
+                opacity: 0.7003;
+            }
+            95% {
+                opacity: 0.36108;
+            }
+            100% {
+                opacity: 0.24387;
+            }
+        }
+
+        @keyframes scanline {
+            0% {
+                transform: translateY(-100px);
+            }
+            100% {
+                transform: translateY(calc(100vh + 100px));
+            }
+        }
+
+        /* Заглушки для отсутствующих изображений */
+        .image-placeholder {
+            width: 100%;
+            height: 150px;
+            background: color-mix(in srgb, var(--foreground) 10%, transparent);
+            border: 1px dashed color-mix(in srgb, var(--foreground) 30%, transparent);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: color-mix(in srgb, var(--foreground) 50%, transparent);
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body class="crt">
+<!-- Элементы CRT-эффектов -->
+<div class="scanline"></div>
+<div class="crt-vignette"></div>
+<div class="crt-curvature"></div>
+
+<!-- Модальное окно для изображений -->
+<div class="image-modal" id="imageModal">
+    <div class="modal-content">
+        <button class="modal-close" id="modalClose">&times;</button>
+        <img id="modalImage" src="" alt="">
+        <div class="modal-caption" id="modalCaption"></div>
+    </div>
+</div>
+
+<div class="container">
+    <header>
+        <div class="header-top">
+            <h1 data-i18n="projects.title">Проекты</h1>
+        </div>
+        <div class="nav">
+            <a href="index.html" data-i18n="nav.home">Главная</a>
+            <a href="about.html" data-i18n="nav.about">Обо мне</a>
+            <a href="links.html" data-i18n="nav.links">Ссылки</a>
+            <a href="sounds.html" data-i18n="nav.sounds">Звуки</a>
+            <a href="music.html" data-i18n="nav.music">Музыка</a>
+            <a href="projects.html" data-i18n="nav.projects">Проекты</a>
+        </div>
+    </header>
+
+    <section class="content">
+        <h2 data-i18n="projects.subtitle">Мои проекты</h2>
+        <p data-i18n="projects.text1">Исследуйте мои работы в разных областях:</p>
+
+        <!-- Секция тегов для фильтрации -->
+        <div class="tags-section">
+            <div class="tags-title" data-i18n="projects.filter.title">Фильтр по категориям</div>
+            <div class="tags-container">
+                <div class="tag active" data-tag="all" data-i18n="projects.filter.all">Все проекты</div>
+                <div class="tag" data-tag="web" data-i18n="projects.filter.web">Веб-разработка</div>
+                <div class="tag" data-tag="games" data-i18n="projects.filter.games">Игры</div>
+                <div class="tag" data-tag="music" data-i18n="projects.filter.music">Музыка</div>
+                <div class="tag" data-tag="art" data-i18n="projects.filter.art">Искусство</div>
+                <div class="tag" data-tag="tools" data-i18n="projects.filter.tools">Инструменты</div>
+                <div class="tag" data-tag="design" data-i18n="projects.filter.design">Дизайн</div>
+            </div>
+            <div class="tags-info">
+                <span id="projects-count">8</span> <span data-i18n="projects.filter.count">проектов найдено</span>
+            </div>
+        </div>
+
+        <!-- Лента проектов -->
+        <div class="projects-feed">
+            <!-- Проект 1: Веб-разработка -->
+            <article class="project-item" data-tags="web tools design">
+                <div class="project-header">
+                    <div>
+                        <h3 class="project-title">
+                            <span data-i18n="projects.terminal.title">Web Terminal Portfolio</span>
+                            <span class="project-status status-completed" data-i18n="projects.status.completed">Завершен</span>
+                        </h3>
+                        <div class="project-meta" data-i18n="projects.terminal.meta">2024 • Личный проект • 3 месяца разработки</div>
+                    </div>
+                </div>
+
+                <div class="project-description">
+                    <p data-i18n="projects.terminal.description">Интерактивное портфолио в стиле терминала с эмуляцией командной строки. Пользователи могут взаимодействовать с сайтом через текстовые команды, что создает уникальный опыт погружения.</p>
+                </div>
+
+                <div class="project-tech">
+                    <span class="tech-tag">HTML5</span>
+                    <span class="tech-tag">CSS3</span>
+                    <span class="tech-tag">JavaScript</span>
+                    <span class="tech-tag">Terminal API</span>
+                </div>
+
+                <div class="project-details">
+                    <div class="project-features">
+                        <h4 data-i18n="projects.features.title">Основные возможности:</h4>
+                        <ul>
+                            <li data-i18n="projects.terminal.feature1">Полная эмуляция командной строки</li>
+                            <li data-i18n="projects.terminal.feature2">Поддержка основных Unix-команд</li>
+                            <li data-i18n="projects.terminal.feature3">Интерактивная навигация по портфолио</li>
+                            <li data-i18n="projects.terminal.feature4">CRT-эффекты и ретро-стилизация</li>
+                            <li data-i18n="projects.terminal.feature5">Адаптивный дизайн для всех устройств</li>
+                        </ul>
+                    </div>
+
+                    <div class="project-gallery">
+                        <div class="project-image" data-src="/static/projects/terminal/main.jpg" data-caption="Главный экран терминала">
+                            <img src="/static/projects/terminal/main.jpg" alt="Главный экран терминала" onerror="handleImageError(this)">
+                        </div>
+                        <div class="project-image" data-src="/static/projects/terminal/commands.jpg" data-caption="Пример работы команд">
+                            <img src="/static/projects/terminal/commands.jpg" alt="Пример работы команд" onerror="handleImageError(this)">
+                        </div>
+                        <div class="project-image" data-src="/static/projects/terminal/mobile.jpg" data-caption="Мобильная версия">
+                            <img src="/static/projects/terminal/mobile.jpg" alt="Мобильная версия" onerror="handleImageError(this)">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-links">
+                    <a href="https://github.com/username/terminal-portfolio" class="project-link" target="_blank" data-i18n="projects.link.github">GitHub</a>
+                    <a href="https://terminal-portfolio.demo" class="project-link" target="_blank" data-i18n="projects.link.demo">Живая демонстрация</a>
+                </div>
+            </article>
+
+            <!-- Проект 2: Игры -->
+            <article class="project-item" data-tags="games art">
+                <div class="project-header">
+                    <div>
+                        <h3 class="project-title">
+                            <span data-i18n="projects.dungeon.title">Cyber Dungeon Crawler</span>
+                            <span class="project-status status-in-progress" data-i18n="projects.status.in_progress">В разработке</span>
+                        </h3>
+                        <div class="project-meta" data-i18n="projects.dungeon.meta">2023-2024 • Командный проект • 8+ месяцев</div>
+                    </div>
+                </div>
+
+                <div class="project-description">
+                    <p data-i18n="projects.dungeon.description">Рогалик в стиле киберпанк с процедурной генерацией подземелий, тактическими боями и глубокой системой прокачки. Сочетает ретро-эстетику с современными игровыми механиками.</p>
+                </div>
+
+                <div class="project-tech">
+                    <span class="tech-tag">Unity</span>
+                    <span class="tech-tag">C#</span>
+                    <span class="tech-tag">HLSL</span>
+                    <span class="tech-tag">Procedural Generation</span>
+                </div>
+
+                <div class="project-details">
+                    <div class="project-features">
+                        <h4 data-i18n="projects.features.game">Игровые особенности:</h4>
+                        <ul>
+                            <li data-i18n="projects.dungeon.feature1">Процедурная генерация уровней и врагов</li>
+                            <li data-i18n="projects.dungeon.feature2">Глубокая система крафта и модификации оружия</li>
+                            <li data-i18n="projects.dungeon.feature3">Тактические бои с укрытиями и позиционированием</li>
+                            <li data-i18n="projects.dungeon.feature4">Нелинейный сюжет с множеством концовок</li>
+                            <li data-i18n="projects.dungeon.feature5">Кастомный рендерер для ретро-эффектов</li>
+                        </ul>
+                    </div>
+
+                    <div class="project-gallery">
+                        <div class="project-image" data-src="/static/projects/cyber-dungeon/gameplay1.jpg" data-caption="Геймплей скриншот 1">
+                            <img src="/static/projects/cyber-dungeon/gameplay1.jpg" alt="Геймплей скриншот 1" onerror="handleImageError(this)">
+                        </div>
+                        <div class="project-image" data-src="/static/projects/cyber-dungeon/gameplay2.jpg" data-caption="Геймплей скриншот 2">
+                            <img src="/static/projects/cyber-dungeon/gameplay2.jpg" alt="Геймплей скриншот 2" onerror="handleImageError(this)">
+                        </div>
+                        <div class="project-image" data-src="/static/projects/cyber-dungeon/character.jpg" data-caption="Экран персонажа">
+                            <img src="/static/projects/cyber-dungeon/character.jpg" alt="Экран персонажа" onerror="handleImageError(this)">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-links">
+                    <a href="https://github.com/username/cyber-dungeon" class="project-link" target="_blank" data-i18n="projects.link.github">GitHub</a>
+                    <a href="https://cyber-dungeon.demo" class="project-link" target="_blank" data-i18n="projects.link.playable">Playable Demo</a>
+                </div>
+            </article>
+
+            <!-- Проект 3: Музыка -->
+            <article class="project-item" data-tags="music tools web">
+                <div class="project-header">
+                    <div>
+                        <h3 class="project-title">
+                            <span data-i18n="projects.synth.title">Retro Synth Studio</span>
+                            <span class="project-status status-completed" data-i18n="projects.status.completed">Завершен</span>
+                        </h3>
+                        <div class="project-meta" data-i18n="projects.synth.meta">2023 • Личный проект • 4 месяца</div>
+                    </div>
+                </div>
+
+                <div class="project-description">
+                    <p data-i18n="projects.synth.description">Веб-приложение для создания музыки с эмуляцией классических синтезаторов 80-х. Включает несколько типов осцилляторов, фильтры, эффекты и секвенсор с поддержкой экспорта в MIDI.</p>
+                </div>
+
+                <div class="project-tech">
+                    <span class="tech-tag">Web Audio API</span>
+                    <span class="tech-tag">React</span>
+                    <span class="tech-tag">Tone.js</span>
+                    <span class="tech-tag">WebMIDI</span>
+                </div>
+
+                <div class="project-details">
+                    <div class="project-features">
+                        <h4 data-i18n="projects.features.music">Музыкальные возможности:</h4>
+                        <ul>
+                            <li data-i18n="projects.synth.feature1">4-трековый секвенсор с паттернами</li>
+                            <li data-i18n="projects.synth.feature2">Эмуляция аналоговых синтезаторов (Moog, Roland)</li>
+                            <li data-i18n="projects.synth.feature3">Библиотека пресетов и сэмплов</li>
+                            <li data-i18n="projects.synth.feature4">Поддержка MIDI-контроллеров</li>
+                            <li data-i18n="projects.synth.feature5">Экспорт в WAV, MP3 и MIDI форматы</li>
+                        </ul>
+                    </div>
+
+                    <div class="project-gallery">
+                        <div class="project-image" data-src="/static/projects/synth-studio/interface.jpg" data-caption="Интерфейс синтезатора">
+                            <img src="/static/projects/synth-studio/interface.jpg" alt="Интерфейс синтезатора" onerror="handleImageError(this)">
+                        </div>
+                        <div class="project-image" data-src="/static/projects/synth-studio/sequencer.jpg" data-caption="Секвенсор">
+                            <img src="/static/projects/synth-studio/sequencer.jpg" alt="Секвенсор" onerror="handleImageError(this)">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-links">
+                    <a href="https://github.com/username/retro-synth" class="project-link" target="_blank" data-i18n="projects.link.github">GitHub</a>
+                    <a href="https://synth-studio.demo" class="project-link" target="_blank" data-i18n="projects.link.online">Online Studio</a>
+                </div>
+            </article>
+
+            <!-- Проект 4: Искусство -->
+            <article class="project-item" data-tags="art tools">
+                <div class="project-header">
+                    <div>
+                        <h3 class="project-title">
+                            <span data-i18n="projects.art.title">Generative Art Engine</span>
+                            <span class="project-status status-completed" data-i18n="projects.status.completed">Завершен</span>
+                        </h3>
+                        <div class="project-meta" data-i18n="projects.art.meta">2022 • Исследовательский проект • 6 месяцев</div>
+                    </div>
+                </div>
+
+                <div class="project-description">
+                    <p data-i18n="projects.art.description">Движок для создания генеративного искусства с использованием алгоритмов L-систем, клеточных автоматов и шумовых функций. Создает уникальные визуальные композиции на основе математических принципов.</p>
+                </div>
+
+                <div class="project-tech">
+                    <span class="tech-tag">Python</span>
+                    <span class="tech-tag">Processing</span>
+                    <span class="tech-tag">OpenGL</span>
+                    <span class="tech-tag">Generative Algorithms</span>
+                </div>
+
+                <div class="project-details">
+                    <div class="project-features">
+                        <h4 data-i18n="projects.features.algorithms">Алгоритмы и техники:</h4>
+                        <ul>
+                            <li data-i18n="projects.art.feature1">L-системы для фрактальных структур</li>
+                            <li data-i18n="projects.art.feature2">Клеточные автоматы (Game of Life, Wireworld)</li>
+                            <li data-i18n="projects.art.feature3">Шум Перлина и симплекс-шум для текстур</li>
+                            <li data-i18n="projects.art.feature4">Генетические алгоритмы для эволюции искусства</li>
+                            <li data-i18n="projects.art.feature5">Экспорт в SVG, PNG и векторные форматы</li>
+                        </ul>
+                    </div>
+
+                    <div class="project-gallery">
+                        <div class="project-image" data-src="/static/projects/generative-art/fractal1.jpg" data-caption="Фрактальная композиция">
+                            <img src="/static/projects/generative-art/fractal1.jpg" alt="Фрактальная композиция" onerror="handleImageError(this)">
+                        </div>
+                        <div class="project-image" data-src="/static/projects/generative-art/automata.jpg" data-caption="Клеточные автоматы">
+                            <img src="/static/projects/generative-art/automata.jpg" alt="Клеточные автоматы" onerror="handleImageError(this)">
+                        </div>
+                        <div class="project-image" data-src="/static/projects/generative-art/noise-art.jpg" data-caption="Шумовые текстуры">
+                            <img src="/static/projects/generative-art/noise-art.jpg" alt="Шумовые текстуры" onerror="handleImageError(this)">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-links">
+                    <a href="https://github.com/username/generative-art" class="project-link" target="_blank" data-i18n="projects.link.github">GitHub</a>
+                    <a href="https://generative-art.demo" class="project-link" target="_blank" data-i18n="projects.link.gallery">Online Gallery</a>
+                </div>
+            </article>
+        </div>
+
+        <p><span data-i18n="projects.text2">Больше проектов можно найти на</span> <a href="https://github.com" target="_blank">GitHub</a>.</p>
+    </section>
+
+    <section class="email-section">
+        <!-- Добавляем блок с иконками социальных сетей -->
+        <div class="social-icons">
+            <a href="https://vk.com/yourprofile" target="_blank" rel="noopener noreferrer">
+                <img src="static/social/twitch.svg" alt="Twitch" width="32" height="32">
+            </a>
+            <a href="https://t.me/yourprofile" target="_blank" rel="noopener noreferrer">
+                <img src="static/social/youtube.svg" alt="Youtube" width="32" height="32">
+            </a>
+            <a href="https://github.com/yourprofile" target="_blank" rel="noopener noreferrer">
+                <img src="static/social/github.svg" alt="GitHub" width="32" height="32">
+            </a>
+            <a href="https://instagram.com/yourprofile" target="_blank" rel="noopener noreferrer">
+                <img src="static/social/twitter.svg" alt="Twitter" width="32" height="32">
+            </a>
+        </div>
+        <p class="crt-text"><span data-i18n="email">Электронная почта:</span>
+            <a href="mailto:hopereborn@gmail.com">hopereborn@gmail.com</a>
+        </p>
+    </section>
+</div>
+
+<script src="i18n.js"></script>
+<script src="language-switcher.js"></script>
+<script src="menu-sounds.js"></script>
+
+<script>
+    // Функция для обработки ошибок загрузки изображений
+    function handleImageError(img) {
+        img.style.display = 'none';
+        const placeholder = document.createElement('div');
+        placeholder.className = 'image-placeholder';
+        placeholder.setAttribute('data-i18n', 'projects.image.not_found');
+        placeholder.textContent = 'Изображение не найдено';
+        img.parentNode.appendChild(placeholder);
+    }
+
+    // Улучшенная система фильтрации проектов
+    document.addEventListener('DOMContentLoaded', function() {
+        const tags = document.querySelectorAll('.tag');
+        const projects = document.querySelectorAll('.project-item');
+        const projectsCount = document.getElementById('projects-count');
+
+        // Элементы модального окна
+        const imageModal = document.getElementById('imageModal');
+        const modalImage = document.getElementById('modalImage');
+        const modalCaption = document.getElementById('modalCaption');
+        const modalClose = document.getElementById('modalClose');
+
+        // Функция обновления счетчика проектов
+        function updateProjectsCount(visibleCount) {
+            projectsCount.textContent = visibleCount;
+        }
+
+        // Функция фильтрации проектов
+        function filterProjects(selectedTag) {
+            let visibleCount = 0;
+
+            projects.forEach((project, index) => {
+                const projectTags = project.getAttribute('data-tags').split(' ');
+                const shouldShow = selectedTag === 'all' || projectTags.includes(selectedTag);
+
+                if (shouldShow) {
+                    project.style.display = 'block';
+                    // Добавляем задержку для анимации
+                    project.style.animationDelay = `${visibleCount * 0.1}s`;
+                    visibleCount++;
+                } else {
+                    project.style.display = 'none';
+                }
+            });
+
+            updateProjectsCount(visibleCount);
+
+            // Обновляем URL без перезагрузки страницы
+            if (selectedTag !== 'all') {
+                history.pushState(null, null, `#${selectedTag}`);
+            } else {
+                history.pushState(null, null, window.location.pathname);
+            }
+        }
+
+        // Обработчики кликов по тегам
+        tags.forEach(tag => {
+            tag.addEventListener('click', function() {
+                const selectedTag = this.getAttribute('data-tag');
+
+                // Обновляем активный тег
+                tags.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+
+                // Фильтруем проекты
+                filterProjects(selectedTag);
+            });
+        });
+
+        // Обработка хэша в URL при загрузке
+        function handleHashFilter() {
+            const hash = window.location.hash.substring(1);
+            if (hash) {
+                const correspondingTag = document.querySelector(`.tag[data-tag="${hash}"]`);
+                if (correspondingTag) {
+                    correspondingTag.click();
+                }
+            }
+        }
+
+        // Обработка кнопок браузера "назад/вперед"
+        window.addEventListener('popstate', handleHashFilter);
+
+        // Функционал модального окна для изображений
+        function initImageModal() {
+            const imageContainers = document.querySelectorAll('.project-image');
+
+            imageContainers.forEach(container => {
+                container.addEventListener('click', function() {
+                    const imgSrc = this.getAttribute('data-src');
+                    const caption = this.getAttribute('data-caption');
+
+                    modalImage.src = imgSrc;
+                    modalCaption.textContent = caption || '';
+
+                    imageModal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                });
+            });
+
+            // Закрытие модального окна
+            modalClose.addEventListener('click', closeModal);
+            imageModal.addEventListener('click', function(e) {
+                if (e.target === imageModal) {
+                    closeModal();
+                }
+            });
+
+            // Закрытие по клавише ESC
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && imageModal.classList.contains('active')) {
+                    closeModal();
+                }
+            });
+        }
+
+        function closeModal() {
+            imageModal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Определение активной страницы для навигации
+        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+        const navLinks = document.querySelectorAll('.nav a');
+
+        navLinks.forEach(link => {
+            const linkHref = link.getAttribute('href');
+            if (linkHref === currentPage ||
+                (currentPage === '' && linkHref === 'index.html') ||
+                (currentPage.includes(linkHref.replace('.html', '')) && linkHref !== 'index.html')) {
+                link.classList.add('active');
+            }
+        });
+
+        // Добавляем эффекты для интерактивных элементов
+        const interactiveElements = document.querySelectorAll('.nav a, .tag, .project-link');
+        interactiveElements.forEach(element => {
+            element.addEventListener('mouseenter', function() {
+                this.style.animation = 'glow-flicker 0.5s infinite alternate';
+            });
+
+            element.addEventListener('mouseleave', function() {
+                this.style.animation = '';
+            });
+        });
+
+        // Инициализация
+        handleHashFilter();
+        initImageModal();
+    });
+</script>
+</body>
+</html>

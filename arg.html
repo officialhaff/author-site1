@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="arg.title">Classified Information</title>
+    <link rel="stylesheet" href="terminal.css">
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 3;
+        }
+
+        .classified-section {
+            background: color-mix(in srgb, var(--foreground) 5%, transparent);
+            border: 1px solid color-mix(in srgb, var(--foreground) 25%, transparent);
+            border-radius: var(--radius);
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .access-granted {
+            color: #00ff00;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .terminal-output {
+            font-family: "Fira Code", monospace;
+            line-height: 1.4;
+            margin: 20px 0;
+        }
+
+        .terminal-line {
+            margin: 8px 0;
+            white-space: pre-wrap;
+        }
+
+        .prompt {
+            color: var(--accent);
+        }
+
+        .command {
+            color: var(--foreground);
+        }
+
+        .output {
+            color: color-mix(in srgb, var(--foreground) 80%, transparent);
+            margin-left: 10px;
+        }
+
+        .highlight {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .encrypted {
+            background: color-mix(in srgb, var(--foreground) 10%, transparent);
+            padding: 15px;
+            margin: 20px 0;
+            border-left: 3px solid var(--accent);
+            font-family: "Fira Code", monospace;
+            font-size: 0.9em;
+        }
+
+        .timestamp {
+            color: color-mix(in srgb, var(--foreground) 50%, transparent);
+            font-size: 0.8em;
+            text-align: right;
+            margin-top: 30px;
+        }
+
+        .navigation {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .navigation a {
+            margin: 0 10px;
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 2px solid var(--accent);
+            transition: all 0.3s ease;
+        }
+
+        .navigation a:hover {
+            background: color-mix(in srgb, var(--accent) 15%, transparent);
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        .user-info {
+            text-align: right;
+            font-size: 0.9em;
+            color: color-mix(in srgb, var(--foreground) 60%, transparent);
+            margin-bottom: 20px;
+        }
+
+        .encrypted-content {
+            display: none;
+        }
+
+        .decryption-message {
+            text-align: center;
+            margin: 20px 0;
+            color: color-mix(in srgb, var(--foreground) 70%, transparent);
+        }
+    </style>
+</head>
+<body class="crt">
+<!-- Элементы CRT-эффектов -->
+<div class="scanline"></div>
+<div class="crt-vignette"></div>
+<div class="crt-curvature"></div>
+
+<div class="container">
+    <header>
+        <div class="header-top">
+            <h1 class="crt-text" data-i18n="arg.title">СЕКРЕТНЫЙ СЕКТОР</h1>
+        </div>
+        <div class="user-info" id="userInfo">
+            <!-- Информация о пользователе будет заполнена через JS -->
+        </div>
+    </header>
+
+    <section class="content">
+        <div class="classified-section">
+            <div class="access-granted" data-i18n="arg.access">✓ ДОСТУП РАЗРЕШЕН</div>
+
+            <div class="terminal-output">
+                <div class="terminal-line">
+                    <span class="prompt">user@arg-system:~$</span>
+                    <span class="command">status --security-level</span>
+                </div>
+                <div class="terminal-line output">
+                    Уровень безопасности: <span class="highlight">CLASSIFIED</span>
+                </div>
+
+                <div class="terminal-line">
+                    <span class="prompt">user@arg-system:~$</span>
+                    <span class="command">decode --message alpha-seven</span>
+                </div>
+                <div class="terminal-line output">
+                    Инициализация протокола дешифровки...
+                </div>
+            </div>
+
+            <div class="decryption-message" id="decryptionMessage">
+                Дешифровка защищенного контента...
+            </div>
+
+            <div class="encrypted-content" id="encryptedContent">
+                <div class="encrypted">
+                    [НАЧАЛО ШИФРОВАННОГО СООБЩЕНИЯ]<br>
+                    Проект "Феникс" активирован.<br>
+                    Координаты: 47°39'34"N 122°18'47"W<br>
+                    Кодовое слово: <span class="highlight">КРИПТОН</span><br>
+                    Следующая точка контакта: станция "Омега"<br>
+                    Статус миссии: АКТИВНА<br>
+                    Код доступа к архивам: 7X9P-2R4Q-8L1M<br>
+                    [КОНЕЦ ШИФРОВАННОГО СООБЩЕНИЯ]
+                </div>
+
+                <div class="terminal-output">
+                    <div class="terminal-line">
+                        <span class="prompt">user@arg-system:~$</span>
+                        <span class="command">connect --next-node</span>
+                    </div>
+                    <div class="terminal-line output">
+                        Поиск узла... УСТАНОВЛЕНО СОЕДИНЕНИЕ<br>
+                        Передача данных на частоту 144.670 МГц<br>
+                        Ожидание подтверждения...
+                    </div>
+                </div>
+
+                <div data-i18n="arg.message1">
+                    <p>Система зафиксировала ваше проникновение. Это было ожидаемо.</p>
+                    <p>Если вы читаете это, значит вы прошли первый этап отбора.</p>
+                </div>
+
+                <div data-i18n="arg.message2">
+                    <p>Следующие инструкции будут переданы через альтернативные каналы связи.</p>
+                    <p>Следите за обновлениями в установленных точках доступа.</p>
+                </div>
+
+                <div class="timestamp" data-i18n="arg.timestamp">
+                    Последнее обновление: 2024-01-15 23:42:17 UTC
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <a href="#" onclick="logout()" data-i18n="arg.logout">Завершить сеанс</a>
+            <a href="index.html" data-i18n="arg.home">На главную</a>
+        </div>
+    </section>
+</div>
+
+<!-- Подключаем скрипты -->
+<script src="i18n.js"></script>
+<script src="language-switcher.js"></script>
+</body>
+</html>

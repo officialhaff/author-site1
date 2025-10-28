@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление пользователями</title>
+    <link rel="stylesheet" href="terminal.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    <style>
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 3;
+        }
+        
+        .admin-section {
+            background: color-mix(in srgb, var(--foreground) 5%, transparent);
+            border: 1px solid color-mix(in srgb, var(--foreground) 25%, transparent);
+            border-radius: var(--radius);
+            padding: 30px;
+            margin: 30px 0;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: color-mix(in srgb, var(--background) 95%, transparent);
+            border: 1px solid color-mix(in srgb, var(--foreground) 30%, transparent);
+            color: var(--foreground);
+            font-family: inherit;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .submit-btn:hover {
+            background: color-mix(in srgb, var(--accent) 15%, transparent);
+            box-shadow: 0 0 10px var(--accent);
+        }
+        
+        .message {
+            text-align: center;
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: var(--radius);
+        }
+        
+        .success {
+            background: color-mix(in srgb, #00ff00 20%, transparent);
+            border: 1px solid #00ff00;
+            color: #00ff00;
+        }
+        
+        .error {
+            background: color-mix(in srgb, #ff4444 20%, transparent);
+            border: 1px solid #ff4444;
+            color: #ff4444;
+        }
+        
+        .user-list {
+            margin-top: 30px;
+        }
+        
+        .user-item {
+            padding: 10px;
+            border-bottom: 1px solid color-mix(in srgb, var(--foreground) 20%, transparent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .delete-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: var(--radius);
+        }
+    </style>
+</head>
+<body class="crt">
+<div class="scanline"></div>
+<div class="crt-vignette"></div>
+<div class="crt-curvature"></div>
+
+<div class="container">
+    <header>
+        <h1 class="crt-text">Управление пользователями</h1>
+    </header>
+
+    <section class="content">
+        <div class="admin-section">
+            <h3>Добавить нового пользователя</h3>
+            <form id="addUserForm">
+                <div class="form-group">
+                    <label for="newUsername">Имя пользователя:</label>
+                    <input type="text" id="newUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">Пароль:</label>
+                    <input type="password" id="newPassword" required>
+                </div>
+                <button type="submit" class="submit-btn">Добавить пользователя</button>
+            </form>
+            
+            <div id="message" class="message" style="display: none;"></div>
+            
+            <div class="user-list">
+                <h3>Существующие пользователи</h3>
+                <div id="usersList">
+                    <!-- Список пользователей будет заполнен через JS -->
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="auth.html" style="color: var(--accent);">← Назад к авторизации</a>
+        </div>
+    </section>
+</div>
+
+<script>
+    let db = null;
+    let crypto = window.crypto || window.msCrypto;
+
+    // Инициализация базы данных
+    async function initDatabase() {
+        try {
+            const SQL = await initSqlJs({
+                locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
+            });
+
+            db = new SQL.Database();
+            
+            // Создаем таблицу если её нет
+            db.run(`
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT UNIQUE NOT NULL,
+                    password_hash TEXT NOT NULL,
+                    salt TEXT NOT NULL,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            `);
+            
+            loadUsers();
+            
+        } catch (error) {
+            console.error('Ошибка инициализации базы данных:', error);
+            showMessage('Ошибка инициализации базы данных', 'error');
+        }
+    }
+
+    // Генерация соли
+    function generateSalt() {
+        const array = new Uint8Array(16);
+        crypto.getRandomValues(array);
+        return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+    }
+
+    // Хеширование пароля
+    async function hashPassword(password, salt) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(password + salt);
+        const hash = await crypto.subtle.digest('SHA-256', data);
+        return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    // Добавление пользователя
+    document.getElementById('addUserForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const username = document.getElementById('newUsername').value;
+        const password = document.getElementById('newPassword').value;
+        
+        try {
+            const salt = generateSalt();
+            const passwordHash = await hashPassword(password, salt);
+            
+            db.run(
+                "INSERT INTO users (username, password_hash, salt) VALUES (?, ?, ?)",
+                [username, passwordHash, salt]
+            );
+            
+            showMessage('Пользователь успешно добавлен', 'success');
+            document.getElementById('addUserForm').reset();
+            loadUsers();
+            
+        } catch (error) {
+            if (error.message.includes('UNIQUE constraint failed')) {
+                showMessage('Пользователь с таким именем уже существует', 'error');
+            } else {
+                showMessage('Ошибка при добавлении пользователя', 'error');
+            }
+        }
+    });
+
+    // Загрузка списка пользователей
+    function loadUsers() {
+        const result = db.exec("SELECT id, username, created_at FROM users ORDER BY created_at DESC");
+        const usersList = document.getElementById('usersList');
+        
+        if (result.length === 0) {
+            usersList.innerHTML = '<p>Пользователи не найдены</p>';
+            return;
+        }
+        
+        usersList.innerHTML = '';
+        result[0].values.forEach(user => {
+            const [id, username, createdAt] = user;
+            const userItem = document.createElement('div');
+            userItem.className = 'user-item';
+            userItem.innerHTML = `
+                <div>
+                    <strong>${username}</strong><br>
+                    <small>Создан: ${new Date(createdAt).toLocaleString()}</small>
+                </div>
+                <button class="delete-btn" onclick="deleteUser(${id})">Удалить</button>
+            `;
+            usersList.appendChild(userItem);
+        });
+    }
+
+    // Удаление пользователя
+    function deleteUser(userId) {
+        if (confirm('Вы уверены, что хотите удалить этого пользователя?')) {
+            db.run("DELETE FROM users WHERE id = ?", [userId]);
+            loadUsers();
+            showMessage('Пользователь удален', 'success');
+        }
+    }
+
+    // Показать сообщение
+    function showMessage(text, type) {
+        const messageEl = document.getElementById('message');
+        messageEl.textContent = text;
+        messageEl.className = `message ${type}`;
+        messageEl.style.display = 'block';
+        
+        setTimeout(() => {
+            messageEl.style.display = 'none';
+        }, 3000);
+    }
+
+    // Инициализация при загрузке
+    document.addEventListener('DOMContentLoaded', initDatabase);
+</script>
+</body>
+</html>
